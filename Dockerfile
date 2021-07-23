@@ -14,22 +14,32 @@
 # To stop the container, use Docker's "ps" and "stop" commands.
 #
 
-FROM node:10-stretch-slim
+#FROM node:10-stretch-slim
+FROM node:10-slim
 
 MAINTAINER EbolaWare
 
 WORKDIR /install/
 USER root
 
-RUN apt-get update && \
-  apt-get install -y git bzip2 && \
-  rm -rf /var/lib/apt/lists/* && \
-  npm install -g grunt-cli && \ 
-  git clone https://github.com/gchq/CyberChef && \
-  cd CyberChef && \
-  npm install
+RUN 	apt-get update && \
+	apt-get install -y git bzip2 python3 build-essential
+  
+RUN  	rm -rf /var/lib/apt/lists/* /var/cache/apt/* && \
+	npm install -g grunt-cli 
 
-EXPOSE 8080
+RUN	git clone https://github.com/gchq/CyberChef 
+
 WORKDIR /install/CyberChef
+ENV	NODE_OPTIONS=--max_old_space_size=2048
+
+RUN	npm install -g grunt-cli && npm install
+
+#RUN	rm -fr ./build ./node_modules package-lock.json && git checkout .
+
+#RUN	apt-get remove -y build-essential && apt -y autoremove
+#RUN	grunt --help
+EXPOSE 8080
 ENTRYPOINT ["grunt"]
-CMD ["dev"]
+CMD ["prod","--force","-d","-v"]
+CMD	["dev","-fv"]
